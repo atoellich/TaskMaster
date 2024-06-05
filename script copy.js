@@ -19,7 +19,6 @@ function addTask() {
         const task = {
             name: taskName,
             startTime: null,
-            stopTime: null,
             totalTime: 0,
             archived: false
         };
@@ -33,7 +32,6 @@ function startTask(index) {
     const tasks = getTasks();
     if (!tasks[index].startTime) {
         tasks[index].startTime = new Date().getTime();
-        tasks[index].startDate = new Date().toLocaleString();
         saveTasks(tasks);
         renderTasks();
     }
@@ -46,7 +44,6 @@ function stopTask(index) {
         const elapsed = now - tasks[index].startTime;
         tasks[index].totalTime += elapsed;
         tasks[index].startTime = null;
-        tasks[index].stopDate = new Date().toLocaleString();
         saveTasks(tasks);
         renderTasks();
         showSummary(tasks[index].name, formatTime(elapsed), index);
@@ -138,14 +135,7 @@ function showSummary(taskName, timeElapsed, index) {
     editingTaskIndex = index;
     const modal = document.getElementById('summary-modal');
     const summaryText = document.getElementById('summary-text');
-    const tasks = getTasks();
-    const task = tasks[index];
-    summaryText.innerHTML = `
-        Task "${taskName}" stopped.<br/><br/>
-        Elapsed time: ${timeElapsed}<br/>
-        Start date: ${task.startDate ? task.startDate : 'Not started'}<br/>
-        Stop date: ${task.stopDate ? task.stopDate : 'Not stopped'}
-    `;
+    summaryText.innerHTML = `Aufgabe "${taskName}" gestoppt.<br/><br/>Erfasste Zeit: ${timeElapsed}`;
     document.getElementById('edit-time').value = timeElapsed;
     modal.style.display = "block";
 }
@@ -174,12 +164,7 @@ function saveEditedTime() {
 function downloadReceipt(index = null) {
     const tasks = getTasks();
     const task = index !== null ? tasks[index] : tasks[editingTaskIndex];
-    const receipt = `
-        Task: ${task.name}\n
-        Total Time: ${formatTime(task.totalTime)}\n
-        Start Date: ${task.startDate ? task.startDate : 'Not started'}\n
-        Stop Date: ${task.stopDate ? task.stopDate : 'Not stopped'}
-    `;
+    const receipt = `Task: ${task.name}\nTotal Time: ${formatTime(task.totalTime)}`;
     const blob = new Blob([receipt], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
